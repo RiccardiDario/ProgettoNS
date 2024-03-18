@@ -1,9 +1,8 @@
-#
 # Dockerfile: host della rete internet esterna
-#
+
 
 FROM ubuntu:latest
-LABEL maintainer ariccitiello "al.riccitiello@studenti.unina.it"
+
 
 RUN apt-get update && apt-get install -y \
   bridge-utils \
