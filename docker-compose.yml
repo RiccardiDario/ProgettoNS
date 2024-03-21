@@ -53,7 +53,7 @@ esterno:
       rete_esterna:
         ipv4_address: 172.1.2.3
 
-#---------------------------------firewall esterno
+#---------------------------------firewall esterno ASDASDASD
 firewall_esterno:
     image: ubuntu:latest
     hostname: firewall_esterno
