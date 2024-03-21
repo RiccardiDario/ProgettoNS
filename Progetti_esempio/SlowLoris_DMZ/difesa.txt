@@ -1,0 +1,21 @@
+# Per difendersi da un attacco Slowloris con iptables, si possono utilizzare alcune regole specifiche.
+
+# Regola di limitazione della connessione:
+# Questa regola limita il numero massimo di connessioni simultanee da un unico indirizzo IP sulla porta 80.
+iptables -I FORWARD 1 -p tcp --dport 80 -m connlimit --connlimit-above 20 -j DROP
+
+# Regola di limitazione del rateo di connessione:
+# Questa regola limita il tasso di nuove connessioni da un singolo indirizzo IP sulla porta 80.
+iptables -I FORWARD 2 -p tcp --dport 80 -m limit --limit 25/minute --limit-burst 100 -j ACCEPT
+
+# Regola di limitazione della frammentazione:
+# Questa regola blocca i pacchetti con la flag di frammentazione attivata sulla porta 80.
+iptables -I FORWARD 3 -p tcp --dport 80 -f -j DROP
+
+# Regola di limitazione della dimensione dei pacchetti:
+# Questa regola accetta i pacchetti che hanno una lunghezza tra 0 e 500 byte e droppa quelli con una lunghezza maggiore di 500 byte sulla porta 80.
+
+iptables -I FORWARD 4 -p tcp --dport 80 -m length --length 0:500 -j ACCEPT
+iptables -I FORWARD 5 -p tcp --dport 80 -m length --length 501: -j DROP
+
+# È importante notare che queste regole possono ridurre l'impatto di un attacco Slowloris, ma non possono garantire una protezione completa. Inoltre, l'utilizzo di queste regole potrebbe avere un impatto sulla normale operatività del server, pertanto è consigliabile testare le regole in un ambiente di test prima di implementarle in produzione.
