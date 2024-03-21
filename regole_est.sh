@@ -7,25 +7,6 @@
 #	- eth2: rete_interna	(172.1.1.2) 	-->	intern 		(172.1.1.3)
 #
 #
-
-# Regole di sicurezza 
-iptables -A FORWARD -f -j DROP
-iptables -A FORWARD -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
-iptables -A FORWARD -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
-iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
-
-# Consentiamo il traffico dalla rete interna (eth2) alla DMZ (eth0) e le risposte provenienti solo da connessioni già stabilite
-
-iptables -t filter -A FORWARD -i eth2 -o eth0 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-iptables -t filter -A FORWARD -i eth0 -o eth2 -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-# Consentiamo il traffico dalla rete esterna (eth1) alla DMZ (eth0) e le risposte provenienti solo da connessioni già stabilite
-
-iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-
-
 					#SETTO I DUE FIREWALLS CON IPTABLES
 ##############################################################################################################################
 #				Cancellazione delle regole presenti nelle chains		                             #
