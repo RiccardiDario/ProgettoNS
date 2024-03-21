@@ -1,0 +1,27 @@
+Con questo comando vengono scaricate le immagini se non possedute sul sistema; 
+vengono creati i conteiner e avviati. Nel caso in cui i conteiner già fossero
+creati il comando avvia solo i conteiner
+docker compose up -d 
+
+I conteiner vengono stoppati e cancellati ( non vengono toccate le immagini)
+docker compose down
+
+Vengono stoppati i conteiner
+docker compose stop
+
+Mostra i conteiner attualmente nel sistema 
+docker ps -a
+
+Mostra le immagini nel sistema 
+docker image ls -a
+
+Mostra le network presenti nel tuo sistema (anche quelle di precedenti progetti. 
+Ci sono tre network di defaul di docker che servono per il suo corretto funzionamento
+e non devono essere cancellate)
+docker network ls  
+
+Elimina le network di conteiner non presenti più nel sistema
+docker network prune
+
+Elimina un specifico network con id pari a id_network
+docker network rm id_network
