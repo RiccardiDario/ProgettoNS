@@ -19,6 +19,21 @@ networks:
         - subnet: 172.1.3.0/24
 
 services:
+#--------------host rete esterna
+  esterno:
+    image: ubuntu:latest
+    hostname: esterno
+    container_name: esterno
+    tty: true
+    privileged: true
+    command:  sh -c "apt-get update && apt-get install -y \
+              bridge-utils net-tools iputils-ping nmap \
+              traceroute telnet dnsutils nano tcpdump httpie && \
+              ip route add 172.1.3.0/24 via 172.1.2.2 dev eth0 && \
+              echo 'Host della rete esterna' && bash"                                                         
+    networks:
+      rete_esterna:
+        ipv4_address: 172.1.2.3
    
 #---------host rete interna
   
@@ -37,24 +52,8 @@ services:
       rete_interna:
         ipv4_address: 172.1.1.3
 
-#--------------host rete esterna
-esterno:
-    image: ubuntu:latest
-    hostname: esterno
-    container_name: esterno
-    tty: true
-    privileged: true
-    command:  sh -c "apt-get update && apt-get install -y \
-              bridge-utils net-tools iputils-ping nmap \
-              traceroute telnet dnsutils nano tcpdump httpie && \
-              ip route add 172.1.3.0/24 via 172.1.2.2 dev eth0 && \
-              echo 'Host della rete esterna' && bash"                                                         
-    networks:
-      rete_esterna:
-        ipv4_address: 172.1.2.3
-
-#---------------------------------firewall esterno ASDASDASD
-firewall_esterno:
+#---------------------------------firewall esterno
+  firewall_esterno:
     image: ubuntu:latest
     hostname: firewall_esterno
     container_name: firewall_esterno
@@ -66,14 +65,14 @@ firewall_esterno:
               update-alternatives --set iptables /usr/sbin/iptables-legacy && \
               update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \ bash"
     volumes:
-      - ./regole_est.sh:regole_est.sh
+      - ./regole_est.sh:/regole_est.sh
     networks:
       rete_esterna:
         ipv4_address: 172.1.2.2
       DMZ:
         ipv4_address: 172.1.3.2
 #---------------------------------firewall interno
-firewall_interno:
+  firewall_interno:
     image: ubuntu:latest
     hostname: firewall_interno
     container_name: firewall_interno
@@ -85,30 +84,28 @@ firewall_interno:
               update-alternatives --set iptables /usr/sbin/iptables-legacy && \
               update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy && \ bash"
     volumes:
-      - ./regole_int.sh:regole_int.sh
+      - ./regole_int.sh:/regole_int.sh
     networks:
       rete_interna:
         ipv4_address: 172.1.1.2
       DMZ:
-        ipv4_address: 172.1.3.2.1
+        ipv4_address: 172.1.3.2
 
 #---------------------------------Honeypot Cowrie
-cowrie:
+  cowrie:
     image: cowrie/cowrie
     container_name: cowrie
     ports:
       - "2222:2222"
     networks:
-      rete_interna:
         DMZ:
           ipv4_address: 172.1.3.4
-
 #---------------------------------Mailoney
-mailoney:
-    image: mailoney/mailoney
+  mailoney:
+    image: dtagdevsec/mailoney
     container_name: mailoney
     ports:
       - "25:25"
     networks:
       DMZ:
-        ipv4_address: 172.1.3.4
+        ipv4_address: 172.1.3.5
