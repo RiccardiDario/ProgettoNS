@@ -92,3 +92,23 @@ firewall_interno:
       DMZ:
         ipv4_address: 172.1.3.2
 
+#---------------------------------Honeypot Cowrie
+cowrie:
+    image: cowrie/cowrie
+    container_name: cowrie
+    ports:
+      - "2222:2222"
+    networks:
+      rete_interna:
+        DMZ:
+          ipv4_address: 172.1.3.4
+
+#---------------------------------Mailoney
+mailoney:
+    image: mailoney/mailoney
+    container_name: mailoney
+    ports:
+      - "25:25"
+    networks:
+      DMZ:
+        ipv4_address: 172.1.3.4
