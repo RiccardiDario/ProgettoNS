@@ -90,7 +90,7 @@ firewall_interno:
       rete_interna:
         ipv4_address: 172.1.1.2
       DMZ:
-        ipv4_address: 172.1.3.2
+        ipv4_address: 172.1.3.2.1
 
 #---------------------------------Honeypot Cowrie
 cowrie:
