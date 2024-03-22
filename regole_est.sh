@@ -47,7 +47,7 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
 
 # Protezione Ip Spoofing
 # Tutti i pacchetti che provengono dall'esterno e hanno source address interno vengono scartati
-iptables -A FORWARD -s 192.1.3.0/24  -i eth0 -j DROP
+iptables -A FORWARD -s 172.1.1.0/24  -i eth0 -j DROP
 
 # Protezione Syn Flood Attack 
 # Creo nuova catena SYN_FLOOD
