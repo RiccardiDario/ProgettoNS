@@ -25,3 +25,8 @@ docker network prune
 
 Elimina un specifico network con id pari a id_network
 docker network rm id_network
+
+
+
+
+iptables -L nei conteiner dei firewall mostra le regole

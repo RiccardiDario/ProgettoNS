@@ -1,19 +1,8 @@
-#!/bin/bash
-
-#  Firewall:
-# 	- eth0: DMZ		(172.1.3.2)	--> 	server 		(172.1.3.3)
-#	- eth1: rete_esterna	(172.1.2.2) 	|->	client 		(172.1.2.3) 
-#						|->	attaccante	(172.1.2.4)
-#	- eth2: rete_interna	(172.1.1.2) 	-->	intern 		(172.1.1.3)
-#
-#
-
-					#SETTO I DUE FIREWALLS CON IPTABLES
+					#SETTO Il FIREWALL CON IPTABLES
 ##############################################################################################################################
 #				Cancellazione delle regole presenti nelle chains		                             #
 ##############################################################################################################################
 iptables -F
-iptables -F -t nat
 
 ##############################################################################################################################
 #				Eliminazione delle chains non standard vuote			                             #
@@ -21,26 +10,26 @@ iptables -F -t nat
 iptables -X
 
 ##############################################################################################################################
-#		Policy di base per firewall1 e firewall2 (blocco tutto quello che non è esplicitamente consentito)           #
+#		Policy di base per il firewall (blocco tutto quello che non è esplicitamente consentito)           #
 ##############################################################################################################################
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 
 
-# Elimino pacchetti non validi 2 - VERIFICATO
+# Elimino pacchetti non validi 
 iptables -A INPUT   -m state --state INVALID -j DROP
 iptables -A FORWARD -m state --state INVALID -j DROP
 iptables -A OUTPUT  -m state --state INVALID -j DROP
 
 # Droppo pacchetti ip frammentati
-iptables -A FORWARD -f -j DROP
+iptables -A FORWARD -f -j DROP				
 
-# Security  - VERIFICATO (SONO CONSIDERATI TUTTI PACCHETTI INVALIDI)												
-# Droppo pacchetti no-sense
-iptables -A FORWARD -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
+
+# Droppo pacchetti no-sense												
+iptables -A FORWARD -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP	
 iptables -A FORWARD -p tcp --tcp-flags ALL ALL -j DROP
-iptables -A FORWARD -p tcp --tcp-flags ALL NONE -j DROP	# Per evitare TCP null scan
+iptables -A FORWARD -p tcp --tcp-flags ALL NONE -j DROP
 iptables -A FORWARD -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
 iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
 
@@ -56,6 +45,7 @@ iptables -A FORWARD -p tcp --syn -j SYN_FLOOD
 iptables -A SYN_FLOOD -m limit --limit 1/s -j RETURN
 # Se non ha un match con la regola precedente il pacchetto viene scartato
 iptables -A SYN_FLOOD -j DROP
+
 
 # Protezione Ping of Death Attack
 iptables -A FORWARD -j NFLOG --nflog-prefix="FORWARD Log pre-regola: "
@@ -73,19 +63,17 @@ iptables -A FORWARD -p udp -j UDP_FLOOD
 iptables -A UDP_FLOOD -p udp -m limit --limit 1/s -j RETURN
 iptables -A UDP_FLOOD -j DROP
 
-# Accetto tutto il traffico diretto alla porta 53 protocollo udp
-iptables -t filter -A FORWARD -i eth0 -o eth1 -p udp -d 192.1.2.3 --dport 53 -j ACCEPT
-iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j ACCEPT
+# Droppo tutto il  traffico UDP
+iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j DROP
 
-# Droppo tutto il resto del traffico UDP
-iptables -t filter -A FORWARD -i eth0 -o eth1 -p udp -j DROP
+# Inoltro tutto il resto dei pacchetti provenienti dall'interno (eth1) sull'interfaccia della DMZ (eth0)	                     
+iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Inoltro tutto il resto dei pacchetti provenienti dall'esterno (eth0) sull'interfaccia della DMZ (eth1)	                     
-iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
 
 # Droppo tutti i tentativi di connessione su tcp provenienti dalla DMZ 
-iptables -A FORWARD -p tcp -s 192.1.2.0/24 --syn -j DROP
+iptables -A FORWARD -p tcp -s 172.1.3.0/24 --syn -j DROP
 
 # Droppo tentativi di connessione rete interna - rete esterna
-iptables -A FORWARD -d 192.1.1.0/24 -j DROP
+iptables -A FORWARD -d 172.1.1.0/24 -j DROP
