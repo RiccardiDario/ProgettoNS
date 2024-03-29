@@ -27,30 +27,45 @@ services:
     tty: true
     privileged: true
     command:  sh -c "apt-get update && apt-get install -y \
-              bridge-utils net-tools iputils-ping nmap iproute2 \
-              traceroute telnet ssh curl ftp nano httpie && \
+              bridge-utils net-tools iputils-ping nmap iproute2 dnsutils \
+              traceroute netcat telnet ssh curl ftp nano httpie && \
               ip route add 172.1.0.0/16 via 172.1.2.2 && \
               echo 'Host della rete esterna' && bash"                                                         
     networks:
       rete_esterna:
         ipv4_address: 172.1.2.3
    
-#---------host rete interna
-  
-  interno:
+#---------host1 rete interna
+  interno1:
     image: ubuntu:latest
-    hostname: interno
-    container_name: interno
+    hostname: interno1
+    container_name: interno1
     tty: true
     privileged: true
     command:  sh -c "apt-get update && apt-get install -y \
-              bridge-utils net-tools iputils-ping nmap iproute2 \
-              traceroute telnet ssh curl ftp nano httpie && \
+              bridge-utils net-tools iputils-ping nmap iproute2 dnsutils \
+              traceroute netcat telnet ssh curl ftp nano httpie && \
               ip route add 172.1.0.0/16 via 172.1.1.2 && \
               echo 'Host della rete interna' && bash"                                                         
     networks:
       rete_interna:
         ipv4_address: 172.1.1.3
+
+#---------host2 rete interna
+  interno2:
+    image: ubuntu:latest
+    hostname: interno2
+    container_name: interno2
+    tty: true
+    privileged: true
+    command:  sh -c "apt-get update && apt-get install -y \
+              bridge-utils net-tools iputils-ping nmap iproute2 dnsutils\
+              traceroute netcat telnet ssh curl ftp nano httpie && \
+              ip route add 172.1.0.0/16 via 172.1.1.2 && \
+              echo 'Host della rete interna' && bash"                                                         
+    networks:
+      rete_interna:
+        ipv4_address: 172.1.1.5
 
 #---------host rete DMZ
   
@@ -61,14 +76,14 @@ services:
     tty: true
     privileged: true
     command:  sh -c "apt-get update && apt-get install -y \
-              bridge-utils net-tools iputils-ping nmap iproute2 \
+              bridge-utils net-tools iputils-ping nmap iproute2 dnsutils \
               traceroute telnet ssh curl ftp nano httpie && \
               ip route add 172.1.1.0/24 via 172.1.3.7 && \
               ip route add 172.1.2.0/24 via 172.1.3.2 && \
               echo 'Host della rete dmz' && bash"                                                         
     networks:
       DMZ:
-        ipv4_address: 172.1.3.8
+        ipv4_address: 172.1.3.6
 
 #---------------------------------firewall esterno
   firewall_esterno:
@@ -87,7 +102,7 @@ services:
       rete_esterna:
         ipv4_address: 172.1.2.2
       DMZ:
-        ipv4_address: 172.1.3.2
+        ipv4_address: 172.1.3.7
 #---------------------------------firewall interno
   firewall_interno:
     image: ubuntu:latest
@@ -105,39 +120,51 @@ services:
       rete_interna:
         ipv4_address: 172.1.1.2
       DMZ:
-        ipv4_address: 172.1.3.7
+        ipv4_address: 172.1.3.2
 
-#---------------------------------Honeypot Cowrie
-  cowrie:
-    image: cowrie/cowrie:latest
-    container_name: cowrie
-    ports:
-      - "2222:2222"
+#---------host rete DMZ
+  
+  DNS:
+    image: ubuntu:latest
+    hostname: DNS
+    container_name: DNS
+    tty: true
+    privileged: true
+    command:  sh -c "apt-get update && apt-get install -y \
+              bridge-utils net-tools iputils-ping nmap iproute2 \
+              traceroute telnet ssh curl ftp nano httpie bind9 && \
+              ip route add 172.1.1.0/24 via 172.1.3.7 && \
+              ip route add 172.1.2.0/24 via 172.1.3.2 && \
+              service named start && bash" 
+    volumes:
+      - ./config/db.example.local:/etc/bind/db.example.local   
+      - ./config/named.conf:/etc/bind/named.conf
+      - ./config/named.conf.local:/etc/bind/named.conf.local
+      - ./config/named.conf.options:/etc/bind/named.conf.options                                                   
     networks:
-        DMZ:
-          ipv4_address: 172.1.3.4
+      DMZ:
+        ipv4_address: 172.1.3.4
+
+
 #---------------------------------Mailoney
   mailoney:
     image: dtagdevsec/mailoney:alpha
     container_name: mailoney
     ports:
       - "25:25"
+    privileged: true
     user: root
+    networks:
+      rete_interna:
+        ipv4_address: 172.1.1.4
+        
+#---------------------------------Honeypot dionaea
+  dionaea:
+    image: dinotools/dionaea
+    privileged: true
     networks:
       DMZ:
         ipv4_address: 172.1.3.5
-        
-#---------------------------------FTP Server
-  ftp_server:
-    image: fauria/vsftpd
-    ports:
-      - "21:21"  # Porta FTP
-    environment:
-      - FTP_USER=username
-      - FTP_PASS=password
-    networks:
-      DMZ:
-        ipv4_address: 172.1.3.6
 
   #---------------------------------Web Server Apache
   web_server:

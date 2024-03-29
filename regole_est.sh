@@ -50,18 +50,6 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
 # Protezione Syn Flood Attack 
 # Creo nuova catena SYN_FLOOD
 
-iptables -N SYN_FLOOD		
-# Eseguo le regole della catena SYN_FLOOD se il pacchetto in ingresso è tcp e ha il flag syn = 1		
-iptables -A FORWARD -p tcp --syn -j SYN_FLOOD		
-# Il pacchetto viene fatto passare se rispetta i limiti prefissati
-# Numero massimo di confronti al secondo (in media) = 1
-# Numero massimo di confronti iniziali (in media) = 5 default
-iptables -A SYN_FLOOD -m limit --limit 1/s -j NFLOG --nflog-prefix="Rule number: 10"
-iptables -A SYN_FLOOD -m limit --limit 1/s -j RETURN
-# Se non ha un match con la regola precedente il pacchetto viene scartato
-iptables -A SYN_FLOOD -j NFLOG --nflog-prefix="Rule number: 11"
-iptables -A SYN_FLOOD -j DROP
-
 
 # Protezione Ping of Death Attack
 
@@ -92,12 +80,14 @@ iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j NFLOG --nflog-prefix="Ru
 iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j DROP
 
 
-# Inoltro tutto il resto dei pacchetti provenienti dall'interno (eth1) sull'interfaccia della DMZ (eth0)
+# Inoltro tutto il resto dei pacchetti provenienti dall'esterno (eth1) sull'interfaccia della DMZ (eth0)
 iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state NEW,ESTABLISHED,RELATED -j NFLOG --nflog-prefix="Rule number: 17"	                     
 iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 
 iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j NFLOG --nflog-prefix="Rule number: 18"
 iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+iptables -t nat -P PREROUTING ACCEPT
 
 				#Natting da qualsiasi host della rete esterna dmz
 ##############################################################################################################################
@@ -119,4 +109,4 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 2222 -j DNAT --to-dest 172.
 ##############################################################################################################################
 #							4-MAILONEY HONEYPOT				                  	     #
 ##############################################################################################################################
-iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 25 -j DNAT --to-dest 172.1.3.1
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 25 -j DNAT --to-dest 172.1.3.5

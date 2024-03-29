@@ -47,20 +47,6 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j NFLOG --nflog-prefix="
 iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
 
 
-# Protezione Syn Flood Attack 
-# Creo nuova catena SYN_FLOOD
-
-iptables -N SYN_FLOOD		
-# Eseguo le regole della catena SYN_FLOOD se il pacchetto in ingresso è tcp e ha il flag syn = 1		
-iptables -A FORWARD -p tcp --syn -j SYN_FLOOD		
-# Il pacchetto viene fatto passare se rispetta i limiti prefissati
-# Numero massimo di confronti al secondo (in media) = 1
-# Numero massimo di confronti iniziali (in media) = 5 default
-iptables -A SYN_FLOOD -m limit --limit 1/s -j NFLOG --nflog-prefix="Rule number: 10"
-iptables -A SYN_FLOOD -m limit --limit 1/s -j RETURN
-# Se non ha un match con la regola precedente il pacchetto viene scartato
-iptables -A SYN_FLOOD -j NFLOG --nflog-prefix="Rule number: 11"
-iptables -A SYN_FLOOD -j DROP
 
 
 # Protezione Ping of Death Attack
