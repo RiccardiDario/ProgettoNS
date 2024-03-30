@@ -88,3 +88,22 @@ iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELAT
 # Droppo tentativi di connessione rete interna - rete esterna
 iptables -A FORWARD -d 172.1.2.0/24 -j NFLOG --nflog-prefix="Rule number: 19"
 iptables -A FORWARD -d 172.1.2.0/24 -j DROP
+
+
+
+				#Natting da qualsiasi host della rete interna verso dmz
+##############################################################################################################################
+#							1-Web Server				                  	     #
+##############################################################################################################################
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 80 -j DNAT --to-dest 172.1.3.3
+
+##############################################################################################################################
+#							2-DIONAEA HONEYPOT 				                  	     #
+##############################################################################################################################
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21,5060 -j DNAT --to-dest 172.1.3.5
+
+##############################################################################################################################
+#							3-  DNS				                  	     #
+##############################################################################################################################
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 53 -j DNAT --to-dest 172.1.3.4
+iptables -t nat -A PREROUTING -p udp -i eth1 --dport 53 -j DNAT --to-dest 172.1.3.4

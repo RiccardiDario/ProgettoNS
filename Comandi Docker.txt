@@ -46,4 +46,16 @@ iptables -L nei conteiner dei firewall mostra le regole
 
  Per quanto rigurda il dns bisogna editare il file /etc/resolv.conf di ogni host che vuole 
  comunicare con il dns. Bisogna farlo obbligatoriamente con il conteiner up. Si cambia 
- l'indirizzo della prima riga con l'indirizzo ip del dns
+ l'indirizzo della prima riga con l'indirizzo ip del dns. Non riesco a farlo
+
+N.B Per Dionaea bisogna aggiungere prima la rotta
+apt-get update && apt-get install  iproute2
+ip route add 172.1.1.0/24 via 172.1.3.7
+ip route add 172.1.2.0/24 via 172.1.3.2
+
+Per mailoney
+
+ip route add 172.1.1.0/24 via 172.1.3.7
+ip route add 172.1.2.0/24 via 172.1.3.2
+apk update && apk add iproute2
+
