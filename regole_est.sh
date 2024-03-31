@@ -98,4 +98,5 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 80 -j DNAT --to-dest 172.1.
 ##############################################################################################################################
 #							2-DIONAEA HONEYPOT 				                  	     #
 ##############################################################################################################################
-iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21,5060 -j DNAT --to-dest 172.1.3.5
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21   -j DNAT --to-dest 172.1.3.5
+iptables -t nat -A PREROUTING -p udp -i eth1 --dport 5060 -j DNAT --to-dest 172.1.3.5

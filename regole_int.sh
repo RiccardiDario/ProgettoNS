@@ -62,20 +62,11 @@ iptables -A PING_OF_DEATH -p icmp --icmp-type echo-request -j DROP
 
 
 
-# Evito UDP-flood Attacks
-iptables -N UDP_FLOOD
-iptables -A FORWARD -p udp -j UDP_FLOOD
-
-iptables -A UDP_FLOOD -p udp -m limit --limit 1/s -j NFLOG --nflog-prefix="Rule number: 14"
-iptables -A UDP_FLOOD -p udp -m limit --limit 1/s -j RETURN
-
-iptables -A UDP_FLOOD -j NFLOG --nflog-prefix="Rule number: 15"
-iptables -A UDP_FLOOD -j DROP
+#Accetto tutto il traffico diretto alla porta 53 protocollo tcp
+iptables -t filter -A FORWARD -i eth1 -o eth0 -p tcp -d 172.1.3.4 --dport 53 -j ACCEPT
+iptables -t filter -A FORWARD -i eth0 -o eth1 -p udp -j ACCEPT
 
 
-# Droppo tutto il  traffico UDP
-iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j NFLOG --nflog-prefix="Rule number: 16"
-iptables -t filter -A FORWARD -i eth1 -o eth0 -p udp -j DROP
 
 
 # Inoltro tutto il resto dei pacchetti provenienti dall'interno (eth1) sull'interfaccia della DMZ (eth0)
@@ -106,4 +97,3 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21,5060 -j DNAT --to-dest 1
 #							3-  DNS				                  	     #
 ##############################################################################################################################
 iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 53 -j DNAT --to-dest 172.1.3.4
-iptables -t nat -A PREROUTING -p udp -i eth1 --dport 53 -j DNAT --to-dest 172.1.3.4

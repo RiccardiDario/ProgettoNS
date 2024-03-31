@@ -28,34 +28,30 @@ docker network rm id_network
 
 iptables -L nei conteiner dei firewall mostra le regole
 
+Per mailoney
+Per il log andare a opt/mailoney
+ip route add 172.1.1.0/24 via 172.1.3.2
+ip route add 172.1.2.0/24 via 172.1.3.7
+apk update && apk add iproute2
 
+Per mailoney lanciare i seguenti comandi
+telnet 172.1.1.4 25
+EHLO example.com
+MAIL FROM: <from@example.com>
+RCPT TO: <to@example.com>
 
- Per interrogare sip su dionaea
- nc 172.1.3.6 5060
- INVITE sip:172.1.3.6 SIP/2.0
-
-
- Per mailoney lanciare i seguenti comandi
- telnet 172.1.1.4 25
- EHLO example.com
- MAIL FROM: <from@example.com>
- RCPT TO: <to@example.com>
-
- Per il log andare a opt/mailoney
-
-
- Per quanto rigurda il dns bisogna editare il file /etc/resolv.conf di ogni host che vuole 
- comunicare con il dns. Bisogna farlo obbligatoriamente con il conteiner up. Si cambia 
- l'indirizzo della prima riga con l'indirizzo ip del dns. Non riesco a farlo
+ 
 
 N.B Per Dionaea bisogna aggiungere prima la rotta
 apt-get update && apt-get install  iproute2
-ip route add 172.1.1.0/24 via 172.1.3.7
-ip route add 172.1.2.0/24 via 172.1.3.2
+ip route add 172.1.1.0/24 via 172.1.3.2
+ip route add 172.1.2.0/24 via 172.1.3.7
 
-Per mailoney
+Per interrogare sip su dionaea
+nc 172.1.3.6 5060
+INVITE sip:172.1.3.6 SIP/2.0
 
-ip route add 172.1.1.0/24 via 172.1.3.7
-ip route add 172.1.2.0/24 via 172.1.3.2
-apk update && apk add iproute2
-
+Per testare il dns dal host interno
+nslookup WebServer 172.1.3.4
+nslookup  Dionaea  172.1.3.4
+nslookup  HostDMZ  172.1.3.4
