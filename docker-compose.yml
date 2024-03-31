@@ -138,11 +138,11 @@ services:
               bridge-utils net-tools iputils-ping nmap iproute2 \
               traceroute telnet ssh curl ftp nano httpie bind9 && \
               ip route add 172.1.1.0/24 via 172.1.3.2 && \
-              cp /etc/db.progettons.local /etc/bind/db.progettons.local && \
+              cp /etc/db.example.local /etc/bind/db.example.local && \
               cp /etc/named.conf /etc/bind/named.conf && \
               service named restart && bash" 
     volumes:
-      - ./db.progettons.local:/etc/db.progettons.local  
+      - ./db.example.local:/etc/db.example.local  
       - ./named.conf:/etc/named.conf                                                  
     networks:
       DMZ:

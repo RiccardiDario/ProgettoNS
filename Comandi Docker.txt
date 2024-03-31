@@ -52,6 +52,6 @@ nc 172.1.3.6 5060
 INVITE sip:172.1.3.6 SIP/2.0
 
 Per testare il dns dal host interno
-nslookup WebServer 172.1.3.4
-nslookup  Dionaea  172.1.3.4
-nslookup  HostDMZ  172.1.3.4
+nslookup  hostdmz.example.local
+nslookup  webserver.example.local
+nslookup  dionaea.example.local
