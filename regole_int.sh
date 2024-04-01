@@ -50,7 +50,6 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
 
 
 # Protezione Ping of Death Attack
-
 iptables -N PING_OF_DEATH
 iptables -A FORWARD -p icmp -j PING_OF_DEATH
 # Accetto tutte le richieste se rispettano i limiti prefissati
@@ -62,9 +61,6 @@ iptables -A PING_OF_DEATH -p icmp --icmp-type echo-request -j DROP
 
 
 
-#Accetto tutto il traffico diretto alla porta 53 protocollo tcp
-iptables -t filter -A FORWARD -i eth1 -o eth0 -p tcp -d 172.1.3.4 --dport 53 -j ACCEPT
-iptables -t filter -A FORWARD -i eth0 -o eth1 -p udp -j ACCEPT
 
 
 
@@ -91,7 +87,8 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 80 -j DNAT --to-dest 172.1.
 ##############################################################################################################################
 #							2-DIONAEA HONEYPOT 				                  	     #
 ##############################################################################################################################
-iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21,5060 -j DNAT --to-dest 172.1.3.5
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21   -j DNAT --to-dest 172.1.3.5
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 5060 -j DNAT --to-dest 172.1.3.5
 
 ##############################################################################################################################
 #							3-  DNS				                  	     #

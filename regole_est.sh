@@ -87,7 +87,6 @@ iptables -t filter -A FORWARD -i eth1 -o eth0 -m state --state NEW,ESTABLISHED,R
 iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j NFLOG --nflog-prefix="Rule number: 18"
 iptables -t filter -A FORWARD -i eth0 -o eth1 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-iptables -t nat -P PREROUTING ACCEPT
 
 				#Natting da qualsiasi host della rete esterna verso dmz
 ##############################################################################################################################
@@ -99,4 +98,9 @@ iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 80 -j DNAT --to-dest 172.1.
 #							2-DIONAEA HONEYPOT 				                  	     #
 ##############################################################################################################################
 iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 21   -j DNAT --to-dest 172.1.3.5
-iptables -t nat -A PREROUTING -p udp -i eth1 --dport 5060 -j DNAT --to-dest 172.1.3.5
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 5060 -j DNAT --to-dest 172.1.3.5
+
+##############################################################################################################################
+#							3-  DNS				                  	     #
+##############################################################################################################################
+iptables -t nat -A PREROUTING -p tcp -i eth1 --dport 53 -j DNAT --to-dest 172.1.3.4
