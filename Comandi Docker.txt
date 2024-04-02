@@ -58,3 +58,18 @@ Per testare il dns dal host interno o quello della dmz
 nslookup  hostdmz.example.local
 nslookup  webserver.example.local
 nslookup  dionaea.example.local
+
+Per testare le regole dal host esterno installare
+apt-get update && apt-get install hping3
+
+hping3 --rawip -d 120 --spoof 172.1.1.3 172.1.2.3 - IP SPOOFING
+
+hping3 -c 15000 -d 120 -S -w 64 -p 80 --flood --rand-source 172.1.3.3 - SYN FLOOD
+
+hping3 --icmp -c 15000 -d 120 -p 80 --flood --rand-source 172.1.3.6 - PING OF DEATH
+
+hping3 --udp -c 15000 -d 120 -p 53 --flood --rand-source 172.1.3.6 - UDP FLOOD
+
+hping3 -c 15000 -d 120 -S -F -A -R -w 64 -p 80 --flood --rand-source 172.1.3.6 - INVALID PACKET
+
+hping3 --rawip --frag -d 120 172.1.3.6 - INOLTRO PACCHETTI IP FRAMMENTATI
