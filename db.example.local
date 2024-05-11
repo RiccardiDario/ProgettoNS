@@ -13,6 +13,6 @@ $TTL	86400
 ;
 @	IN	NS	localhost.
 
-hostdmz     IN      A       172.1.3.6
+
 webserver   IN      A       172.1.3.3
 dionaea     IN      A       172.1.3.5
